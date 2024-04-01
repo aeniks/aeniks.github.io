@@ -1,3 +1,4 @@
+
 <!-- ; clear; 
 ##########################################
 ## THIS IS FOR INSTALLING LINUX SCRIPTS ##
@@ -22,7 +23,7 @@ sudo sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/
 pro() {
 alias tf='tput setaf $((RANDOM%16));'; alias tb='tput setab $((RANDOM%16));'; c2=""$cyan"--"$re""; tput civis; tput sgr0; 
 $1 $2 $3 $4 &>./tmp & disown; tput cuu1; PROC_ID=$!; while kill -0 "$PROC_ID" &>/dev/null; 
-do for X in "[        ]" "[$(tf)=$re       ]" "[$(tf)=$(tf)=$re      ]" "[$(tf)=$(tf)=$(tf)=$re     ]" "[$(tf)=$(tf)=$(tf)=$(tf)=    $re]"  \
+do for X in "[        ]" "[$(tf)=$re       ]" "[$(tf)=$(tf)=$re      ]" "[$(tf)=$(tf)=$(tf)=$re     ]" "[$(tf)=$(tf)=$(tf)=$(tf)=    $re]"  \
 "[ $(tf)=$(tf)=$(tf)=$(tf)=   $re]" "[  $(tf)=$(tf)=$(tf)=$(tf)=$re  ]" "[   $(tf)=$(tf)=$(tf)=$(tf)= $re]" "[    $(tf)=$(tf)=$(tf)=$(tf)=$re]" \
 "[     "$(tf)"=$(tf)=$(tf)=$re]" "[      "$(tf)"=$(tf)="$re"]" "[       $(tf)=]" "[        ]" "[        ]" "[        ]"; 
 do echo -e "    $dim[$(tb)  $re$dim]$re "$c2" Executing $rev $1 $2 $3 $4 $re $c2$c2$c2$c2$c2"; tput cuu1; tput sgr0; echo -e "\t\t\t\t\t $X"; tput cuu1; sleep 0.1; 
@@ -78,35 +79,33 @@ background: #2d2c2d;
 #back {
 width: 100vw;
 height: 100vh;
-mix-blend-mode: difference;
+mix-blend-mode: difference ;background-position: left top;
+
 position: absolute;
-z-index: -2;
-animation: banim1 12s forwards 1s infinite alternate both;
+z-index: -2;top: 0;
+
+animation: banim1 94s infinite alternate-reverse both;
 background-image: url(https://bobokrull.github.io/img/tard.jpg);}
  #front {
 width: 100vw;
 height: 100vh;
-position: absolute;
-z-index: -2;
-background-image: url(https://bobokrull.github.io/img/tard.jpg);
-animation: banim1 44s infinite alternate both;
+position: absolute;background-position: left top;
 
-.text1 {
+top: 0;
+z-index: -2;mix-blend-mode: difference;
+
+background-image: url(https://bobokrull.github.io/img/tard.jpg);
+animation: banim1 94s infinite alternate both;}
+
+.text1, .text2, #bb {
 position: fixed;
 bottom: 44px;
 margin: auto;
 width: 100vw;
-text-align: center;
+text-align: center;background-position: left top;
+
 text-decoration: underline 2px dashed rgba(255, 105, 180, 0.135);
 text-shadow: 1px 1px #ffffff88, 2px 2px #ffffff88 ;
-}
-#bb:hover {cursor: pointer;
-filter: invert(1) drop-shadow(2px 2px #880088);
-}
-#bb {
-position: fixed;
-bottom: 21px;
-right: 21px;
 }
 
 /** {*/
@@ -118,17 +117,18 @@ right: 21px;
 <body>
 <div id="back"></div>
 <div id="front"></div>
-<div id="f5">
+<div id="bb">
 <div class="text2">
+<p>
+play with the ball... or check out my work
+</p>
 <p>
 <a target="_blank" href="https://github.com/bobokrull"><button id="bb">github.com/bobokrull</button></a>
 </p>
 </div>
 </div>
 <div class="text1">
-<p>
-play with the ball... or check out my work
-</p>
+
 </div>
 <script type="importmap">
       {
