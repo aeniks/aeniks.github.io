@@ -200,15 +200,14 @@ margin: 1em 1em;
 }
 a,
 a:visited {
-padding: 1em;
 line-height: 2.8;
-text-decoration: underline dashed #ffffff88;
+text-decoration: underline dashed #ffffff48;
 font-weight: 400;
 transition: 0.4s;
 color: #eeeeee;
-vertical-align: top;
+vertical-align: middle;
 }
-
+ 
 .a2 a:hover,
 .a2 a:visited:hover {
 background: #66888888;
@@ -224,28 +223,24 @@ color: #ffffff;
 }
 
 .acanvas {
-position: relative;
-bottom: 0;
-top: 0;
-height: 100%;
-margin-bottom: 0;
-width: 100%;
-z-index: 6;
+  position: relative;
+  margin-top: -2em;
+  top: 0;
+  height: calc(100% + 2em);
+  bottom: 0;
+  width: 100%;
+  z-index: 6;
+background:#226688bb;
 }
-canvas{margin-top: -1em;}
 .awrap {
-position: absolute;
-bottom: 0;
-top: 0;
-height: calc(100%);
-margin-bottom: ;
-width: 100%;
+position: fixed;
+bottom: 1em;
 display: flex;
 flex-direction: column;
 align-items: start;
 justify-content: end;
 background: #44444422;
-z-index: ;
+z-index:22 ;
 }
 
 .aspace {
@@ -262,34 +257,36 @@ background: #444444;
 
 .aflex {
 /* line-height: 2.8; */
-box-shadow: -1px 1px #002822, -2px 2px #002822, -3px 3px #002822, -4px 4px #002822, 0 0 4px #ffeedd;
+box-shadow:  -2px 2px #002822, -3px 3px #002822, -4px 4px #002822, 0 0 4px #ffeedd,0 0 24px #ffddee44;
 display: flex;
-bottom: 2em;
-border: 1px dashed #ffffff66;
+bottom: ;
+border: 1.2px dashed #ffffdd66;
 left: ;
-margin-left: 1em;
+margin-left: ;
 margin-bottom: 0;
 padding-left: ;
 margin: ;
 position: relative;
 z-index: 14;
-background: #00000088;
+background: #00000066;
 height: auto;
 flex-direction: ;
 flex-wrap: ;
 white-space: nowrap;
+align-items:center;
+justify-content:center;
+margin-left:2em;
+margin-bottom:2em;
 }
+
 
 .a1 {
-display: block;
-overflow: hidden;
-position: relative;
-opacity: 0;
-width: 0;
-transition: 0.4s;
-padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  width: 0;
+  white-space: pre;
+  transition: 0.64s;
 }
-
 
 .a2 {
 padding: 0 1em;
@@ -322,13 +319,10 @@ background: #2aa58b;
 </head>
 <body>
 <canvas id="canvas" class="acanvas"></canvas>
+
 <div class="awrap">
 <a href="#">
-<div class="aflex">
-<div class="a1">hello world</div>
-<div class="a2">world</div>
-</div>
-</a>
+<div class="aflex"><div class="a1">hello world</div><div class="a2">world</div></div></a>
 <a href="#work">
 <div class="aflex">
 <div class="a1">hello work</div>
