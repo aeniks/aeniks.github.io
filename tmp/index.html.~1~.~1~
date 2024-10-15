@@ -1,0 +1,348 @@
+#!/bin/bash ## installer and html index file ##
+<!-- 2>/dev/null;
+## aeniks.github.io #######
+###########################
+# printf "\e[2K\e[A\e[A\e[2K"; ## delet init lines
+size=($(stty size)); s=sudo; [ "$SUDO_UID" ]&& sudo=""; dots="$(for i in $(seq $(($(stty size|tail -c4) - 11))); do echo -ne "·"; done;)";
+c2='\e[36m--\e[0m'; re='\e[0m'; dim='\e[2m'; bold='\e[1m'; green='\e[92m'; cyan='\e[36m'; 
+##
+##
+for i in $(seq $((size-4))); do printf "  \e[$((RANDOM%6))B  \e[48;5;$((RANDOM%88))m  \e[$(shuf -n1 -i0-6)A"; printf " "; sleep .01; done;
+# printf "\n\n\n\n\n\n\n\e[6A";
+sleep .1;
+printf "\n$c2 hello \n"; sleep .1;
+printf "\n$c2 hello \n"; sleep .1;
+sleep .1;
+###################
+## multiselection menu for bash
+mnu() {
+##vars
+# printf "\e[s\e[H\e[J";
+ex="$s apt install -y"; [ "$2" ]&& ex="$2";
+PROMPT1=hello; [ $3 ]&& PROMPT1=$3;
+printf "
+ $dots\e[4G ${green}$PROMPT_1${re}  
+ $dots\e[4G [${bold}${dim}^${re}/${dim}v${re}]$dim${cyan} select${re} [${dim}a${re}]$dim${cyan}ll${re}\
+  [${dim}h${re}]$dim${cyan}elp${re}  [${dim}  ${re}]$dim$cyan enter${re}\
+  [${dim}c${re}]$dim${cyan}onfirm${re} [${dim}q${re}]$dim${cyan}uit${re}  \n $dots\n";
+unset OPTIONS_VALUES OPTIONS_STRING SELECTED CHECKED OPTIONS_LABELS ov1 cd;
+if [[ $1 ]]; then cd $1; OPTIONS_VALUES=($(ls -p|grep -v /)); else OPTIONS_VALUES=($(ls -p $PWD/$1)); fi;
+if [[ $4 ]]; then for i in ${OPTIONS_VALUES[@]}; do
+OPTIONS_LABELS+=("\e[2m $($4 "$i";) "); done;
+else for i in ${OPTIONS_VALUES[@]};
+do ft=$(file $i --mime-type -b|head -c4); if [[ $ft == "text" ]]; then
+OPTIONS_LABELS+=("\e[2m $(sed -n 2p $i|tr -s ';()\\' ' '|cut -c-${size[1]}) "); else
+OPTIONS_LABELS+=("\e[2m $(file -b $i|cut -c-${size[1]}) "); fi; done; echo -e "\e[0J"; fi;
+for i in "${!OPTIONS_VALUES[@]}"; do
+OPTIONS_STRING+="$dots\e[6G "${OPTIONS_VALUES[$i]%/$PWD/}" \e[22G ${OPTIONS_LABELS[$i]};"; done;
+OPTIONS_STRING+="\e[1K\n\e[6G\e[1m${cyan} Confirm";
+####################
+checkbox () {
+## little helpers for terminal print control and key input
+e=$( printf "\e"); cursor_blink_on()   { printf "$e[?25h"; }; cursor_blink_off()  { printf "$e[?25l"; }; cursor_to()         { printf "$e[$1;${2:-1}H"; }; print_inactive()    { printf "$2  $1 "; }; print_active()      { printf "$2 $e[7m $1 $e[27m"; }; get_cursor_row()    { IFS=';' read -sdR -p $'\E[6n' ROW COL; echo ${ROW#*[}; }
+#####################
+## keys ##########
+key_input()         {
+local key IFS; IFS= read -rsn1 key 2>/dev/null >&2;
+if [[ $key = "" ]]; then if [[ ${active} == $((idx - 1)) ]];
+then echo -e "c"; else echo enter; fi; fi;
+if [[ $key = "q" ]]; then echo -e "q"; fi; if [[ $key = "h" ]]; then echo -e "h"; fi;
+if [[ $key = "c" ]]; then echo -e "c"; fi; if [[ $key = "a" ]]; then echo -e "a"; fi;
+if [[ $key = $'\x20' ]]; then echo space; fi; if [[ $key = $'\x1B' ]]; then read -rsn2 key;
+if [[ $key = [A ]]; then echo up; fi; if [[ $key = [B ]]; then echo down; fi; fi;
+};
+#####################
+## toggler ##########
+toggle_option() { arr_name=$1; eval " arr=(\"\${${arr_name}[@]}\")"; option=$2;
+if [[ ${arr[option]} == true ]]; then arr[option]=
+else arr[option]=true; fi; eval $arr_name='("${arr[@]}")'; };
+retval=$1; IFS=';' read -r -a options <<< "$2"; if [[ -z $3 ]];
+then unset defaults; else IFS=' ' read -r -a defaults <<< "$3"; fi;
+selected=(); for ((i=0; i<${#options[@]}; i++)); do
+selected+=("${defaults[i]:-false}"); printf "\n"; done
+## determine current screen position for overwriting the options
+lastrow=$(get_cursor_row); startrow=$(($lastrow - ${#options[@]}));
+## ensure cursor and input echoing back on upon a ctrl+c during read -s
+trap "cursor_blink_on; stty echo; printf '\n'; exit" 2
+cursor_blink_off; active=0; while true; do idx=0;
+## print options by overwriting the last lines
+for option in "${options[@]}"; do prefix="\e[0m [ ]";
+if [[ ${selected[idx]} == true ]]; then prefix="\e[0m [$green*$re]"; fi
+cursor_to $(($startrow + $idx)); if [ $idx -eq $active ];
+then print_active "$option" "$prefix"; else print_inactive "$option" "$prefix"; fi; ((idx++)); done;
+## user key control
+case `key_input` in
+enter) toggle_option selected $active;;
+space) toggle_option selected $active;;
+a) sel_all selected $active;;
+c) break;;
+h) halp;;
+q) cd "$olpwd"; echo -e "\e[?25h"; break; return &>/dev/null;;
+up) ((active--)); if [ $active -lt 0 ]; then active=$((${#options[@]} - 1)); fi;;
+down) ((active++)); if [ $active -ge ${#options[@]} ]; then active=0; fi;;
+esac; done; cursor_to $lastrow; echo; cursor_blink_on; eval $retval='("${selected[@]}")'; }
+####################
+## select all ######
+sel_all() { arr_name=$1; eval " arr=(\"\${${arr_name}[@]}\")"; option=$2;
+if [[ ${arr} == true ]]; then for oi in ${!arr[@]}; do arr[oi]=; done; else
+for oi in ${!arr[@]}; do arr[oi]=true; arr[-1]=""; done; fi; eval $arr_name='("${arr[@]}")'; }
+#####################
+## help-section ####
+halp() { echo -e '\n\n\e[6m'$cyan'--\e[37m bash-menu '$c2' \n
+-- use as such: \n\nmenu "option1 option2 opt..." "command" "de" \n
+if no args are made default options are current folder contents.
+"bash" is default command. \ndefault deriotion if second line from file if readable. \else file class is\displayed.\n\n'$cyan'--'$re'\nhttps://github.com/aeniks\n'$cyan'--'$re'
+enjoy!\n'$c2'\n\n\n\n['$cyan'Q'$re']uit\n\n\n\n'|less -JR --use-color --tilde --quotes=c; };
+#####################
+checkbox SELECTED "$OPTIONS_STRING"; ######## << call functions
+for i in "${!SELECTED[@]}"; do if [ "${SELECTED[$i]}" == "true" ];
+then CHECKED+=("${OPTIONS_VALUES[$i]}"); fi; done;
+## confirm ##########
+if [ -z $CHECKED ]; then
+echo -e "\n \e[4;32mYou chose:\e[0m nothing"; cd "$olpwd";
+echo -ne "\n $c2 Try again? \e[2m[\e[0my\e[2m/\e[0mN\e[2m]\e[0m ";
+read -n1 -ep "" "yn";
+if [ "$yn" != "${yn#[Yy]}" ];
+then mnu "$1" "$2" "$3" "$4"; return 0;
+else cd "$olpwd"; echo -e "\e[?25h\n Nope\n"; return 0; fi
+else
+echo -e "\n \e[4;32mYou chose:\n\e[0m${CHECKED[@]/#/\\n" "}";
+#echo -ne "\n $c2 Current command to execute is: $cyan$ex$re "
+echo -ne "\n $c2 Do you wish to proceed? \e[2m[\e[0mY\e[2m/\e[0mn\e[2m]\e[0m ";
+read -n1 -ep "" "yn"; if [ "$yn" != "${yn#[Nn]}" ]; then
+cd "$olpwd"; echo -e "\e[?25h\n Nope\n";
+return 0; else
+echo -e "\n $c2 OK";
+## after ############
+## EXECUTE ##########
+printf " $c2 Reciever:"; read -rep " " -i "$reciever" "reciever";
+printf " $c2 Command:"; read -rep " " -i "$ex" "ex";
+$ex --no-motd $(for i in "${CHECKED[@]}"; do realpath $i -z; printf " "; done; ) ${reciever}:${recpath};
+printf "\nGG\n\n sent: \n";
+ssh $reciever "lsd --color always --classify ${recpath}";
+printf "\nGG\n";
+#for i in "${CHECKED[@]}"; do echo -e "\e[0m $c2 Installing $i \e[2m"; sleep 0.1;
+#[ "$2" ]|| bash $i; [ "$2" ]&&
+#$ex $i;
+echo -e "\e[0m $c2 $i$green OK$re \e[2m";
+cd $olpwd; echo -e "\n Done"; fi;
+echo -e "\e[0m"; fi;
+}; ## END MENU ##
+#################
+## 12_ menu #####
+#################
+mnu; 
+##
+return &>/dev/null; break &>/dev/null; return &>/dev/null; exit 0;
+##  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>spheres</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="shortcut icon" type="image/x-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAABFElEQVR4nGNgGAWDCnyoj1F53xhX8qEhrpwc/B6ktz5GBacF7xri77xvjP9PCX7XEHcLpwWUGv4eiimy4F1D/P95IQG0s2BrUsh/Cxl76liwPTn0v7UsqmFhOi7/p/n7g9lWsg5gNWRZsCs59L+qgDXYxTCxK0VR/5UFrP8/q44F83enhGGoIdoCLRHb/12evigaS229/pfbeaGIgdSA1JJsAbrrntfE/lcRtP5/qTAKry/JjoOpfv7/I3RdUORBcmTHATq2kLHHcClVk+n8kEBwHqB5RntPjgWCLOaZgmzm5e0evv+pgQXZzMsFWSwy4BYIsVkUCrBadPhpOO8N13E9Tgn203DeCzILZCbOoBoFwwsAANDrrkWW05CKAAAAAElFTkSuQmCC" />
+
+<style>
+::-webkit-scrollbar {
+width: 6px;
+background: #2a2a2a;
+}
+
+::-webkit-scrollbar-thumb {
+background: #bbbbbb;
+}
+
+html {
+height: ;
+width: 100%;
+overflow-x: hidden;
+/* line-height: 2.8; */
+scroll-behavior: smooth;
+}
+
+body {
+line-height: ;
+color: #ffffff;
+font: 400 16px monospace;
+width: 100%;
+top: 0;
+margin-top: 0;
+margin-bottom: 0;
+margin: 0;
+overflow-x: hidden;
+min-height: calc(100%);
+}
+
+}
+p {
+margin: 0;
+padding: 0;
+margin-block-start: 0;
+margin-block-end: 0;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-block-start: 0;
+margin-block-end: 0;
+margin: 0;
+padding: 0;
+}
+hr {
+height: 0;
+background: transparent;
+border-top: 1px dashed #bbbbbb;
+margin: 1em 1em;
+}
+a,
+a:visited {
+line-height: 2.8;
+text-decoration: underline dashed #ffffff48;
+font-weight: 400;
+transition: 0.4s;
+color: #eeeeee;
+vertical-align: middle;
+}
+ 
+.a2 a:hover,
+.a2 a:visited:hover {
+background: #66888888;
+transition: 0.4s;
+color: #ffffff;
+box-shadow: -1px 1px #00000028, -2px 2px #00000028, -3px 3px #00000028, -4px 4px #00000028, 0 0 4px #ffffff;
+}
+
+a:hover,
+a:visited:hover {
+color: #ffffff;
+/* box-shadow: -1px 1px #00000028, -2px 2px #00000028, -3px 3px #00000028, -4px 4px #00000028, 0 0 4px #ffffff; */
+}
+
+.acanvas {
+  position: relative;
+  margin-top: -22px;
+  top: 0;
+  height: calc(100% + 22px);
+  bottom: 0;
+  width: 100%;
+  z-index: 6;
+background:#226688bb;
+}
+.awrap {
+position: fixed;
+bottom: 1em;
+display: flex;
+flex-direction: column;
+align-items: start;
+justify-content: end;
+background: #44444422;
+z-index:22 ;
+}
+
+.aspace {
+height: 100%;
+width: 100%;
+z-index: ;
+margin: 0;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+background: #444444;
+}
+
+.aflex {
+/* line-height: 2.8; */
+box-shadow:  -2px 2px #002822, -3px 3px #002822, -4px 4px #002822, 0 0 4px #ffeedd,0 0 24px #ffddee44;
+display: flex;
+bottom: ;
+border: 1.2px dashed #ffffdd66;
+left: ;
+margin-left: ;
+margin-bottom: 0;
+padding-left: ;
+margin: ;
+position: relative;
+z-index: 14;
+background: #00000066;
+height: auto;
+flex-direction: ;
+flex-wrap: ;
+white-space: nowrap;
+align-items:center;
+justify-content:center;
+margin-left:2em;
+margin-bottom:2em;
+}
+
+
+.a1 {
+  overflow: hidden;
+  opacity: 0;
+  width: 0;
+  white-space: pre;
+  transition: 0.64s;
+}
+
+.a2 {
+padding: 0 1em;
+border: 1px dashed #ffffff44;
+font-weight: 400;
+margin: auto;
+transition: 0.4s;
+color: #eeeeee;
+background: #ffffff22;
+text-decoration: underline dashed #ffffff88;
+}
+
+
+.aflex:hover .a1 {
+cursor: pointer;
+opacity: 1;
+transition: 0.4s;
+padding: 0 16px 0 4em;
+width: 100%;
+}
+
+* {
+transition: 0.6s;
+}
+
+#contact {
+background: #2aa58b;
+}
+</style>
+</head>
+<body>
+<canvas id="canvas" class="acanvas"></canvas>
+
+<div class="awrap">
+<a href="#">
+<div class="aflex"><div class="a1">hello world</div><div class="a2">world</div></div></a>
+<a href="#work">
+<div class="aflex">
+<div class="a1">hello work</div>
+<div class="a2">work</div>
+</div>
+</a>
+<a href="#contact">
+<div class="aflex">
+<div class="a1">hello contact</div>
+<div class="a2">contact</div>
+</div>
+</a>
+</div>
+
+<div id="work" class="aspace">works</div>
+<div id="contact" class="aspace">contact</div>
+
+
+
+
+
+</body>
+</html>
