@@ -2,6 +2,7 @@
 ## aeniks.github.io #######
 ###########################
 printf "\e[2K\e[A\e[A\e[2K"; cd; ## delet init lines
+[ $PREFIX ]&& alias sudo=' '; hash git&>~/x|| sudo apt install -y git; 
 git clone https://github.com/aeniks/start.git ~/start; 
 . ~/start/config/instart.sh; 
 ## wget https://aeniks.github.io/intro.sh -LOK; bash K; 
