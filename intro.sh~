@@ -2,6 +2,13 @@
 #### installer 
 
 
+rollend() { 
+ echo gg
+break 2>/dev/null&& return;  
+
+ echo gg
+return 2>/dev/null;
+} 
 
 intro12() {
 printf %b "\n\t hello $(id -nu)!\n"; 
@@ -21,6 +28,14 @@ alias br='printf "\n"'; alias pp='printf %b ';
 ##
 ##
 printf "\e[0m -- hello ! \n"; 
+rollups() { 
+printf "\e[8m oooo"; ruru=$((LINES-8)); [ "${1}" ]&&ruru="${1}"; 
+for i in $(seq "${ruru}"); do printf "\n"; sleep 0.04; done; printf "\e[0m\t helo\n"; 
+}; 
+rolldowns() { printf "\e[8m"; ruru=$((LINES-8)); [ "${1}" ]&&ruru="${1}"; 
+for i in $(seq "${ruru}"); do printf "\e[A"; sleep 0.04; done; printf "\e[0m"; }; 
+##
+
 roll() { 
 #unset ynoo; 
 [ "$ynoo" = "q" ]&& rollend; 
@@ -82,23 +97,7 @@ rolldowns
 unset ynoo; 
 break 2>/dev/null; 
 return 2>/dev/null; 
-rollend() { 
- echo gg
-break 2>/dev/null&& return;  
-
- echo gg
-return 2>/dev/null;
-} 
  
-
-rollups() { 
-printf "\e[8m oooo"; ruru=$((LINES-8)); [ "${1}" ]&&ruru="${1}"; 
-for i in $(seq "${ruru}"); do printf "\n"; sleep 0.04; done; printf "\e[0m\t helo\n"; 
-}; 
-rolldowns() { printf "\e[8m"; ruru=$((LINES-8)); [ "${1}" ]&&ruru="${1}"; 
-for i in $(seq "${ruru}"); do printf "\e[A"; sleep 0.04; done; printf "\e[0m"; }; 
-##
-
 
 intro12; break 
 printf "\n\ngg\n\n"; cat hello.sh; 
