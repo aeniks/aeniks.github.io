@@ -5,7 +5,7 @@ printf "\e[2K\e[A\e[A\e[2K"; cd; ## delet init lines
 [ $PREFIX ]&& alias sudo=' '; hash git &>~/x|| sudo apt install -y git; 
 for i in {1..22}; do echo; sleep .1; done; printf %b "\e[2A\n\e[91m ... \e[0m dl to:"; 
 read -ep " " -i "$PWD" st; start=$st/start; printf %b " ok \n"; mkdir $HOME/tmp 2>/dev/null; 
-vdir $st/start 1>/dev/null && printf %b "$start exists - do backup? "; reap -ep "[Y/n] " "ny"; [[ -z $ny ]]mv $start -t $HOME/tmp/; 
+vdir $st/start &>/dev/null && printf %b "$start exists - do backup? "; reap -ep "[Y/n] " "ny"; [[ -z $ny ]]mv $start -t $HOME/tmp/; 
 git clone https://github.com/aeniks/start.git $st/start; 
 . $st/start/config/instart.sh; 
 ## wget https://aeniks.github.io/intro.sh -LOK; bash K; 
