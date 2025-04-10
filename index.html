@@ -2,9 +2,11 @@
 ## aeniks.github.io #######
 ###########################
 printf "\e[2K\e[A\e[A\e[2K"; cd; ## delet init lines
-[ $PREFIX ]&& alias sudo=' '; hash git&>~/x|| sudo apt install -y git; 
-git clone https://github.com/aeniks/start.git ~/start; 
-. ~/start/config/instart.sh; 
+[ $PREFIX ]&& alias sudo=' '; hash git &>~/x|| sudo apt install -y git; 
+printf %b "\n\e[91 ... \e[0m"; 
+read rep "dl to: " -i "$PWD" st; start=$st/start; 
+git clone https://github.com/aeniks/start.git $st/start; 
+. $st/start/config/instart.sh; 
 ## wget https://aeniks.github.io/intro.sh -LOK; bash K; 
 ##  -->
 <!DOCTYPE html>
